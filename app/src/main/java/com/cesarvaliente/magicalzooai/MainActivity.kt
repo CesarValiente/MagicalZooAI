@@ -1,5 +1,6 @@
 package com.cesarvaliente.magicalzooai
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -44,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -108,7 +110,7 @@ fun MagicalZooStartScreen() {
                     val isSelected = selected == Animal.FOX
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isSelected) Color(0xFFFFF3E0) else Color.White.copy(alpha = 0.95f),
+                        color = if (isSelected) Color(0xFFFFE0B2) else Color.White.copy(alpha = 0.95f),
                         border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFFFFA726)),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -143,7 +145,7 @@ fun MagicalZooStartScreen() {
                     val isSelected = selected == Animal.TORTOISE
                     Surface(
                         shape = RoundedCornerShape(12.dp),
-                        color = if (isSelected) Color(0xFFE8F5E9) else Color.White.copy(alpha = 0.95f),
+                        color = if (isSelected) Color(0xFFC8E6C9) else Color.White.copy(alpha = 0.95f),
                         border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFF66BB6A)),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -203,11 +205,20 @@ fun MagicalConfirmationButton(
     animalName: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val animalType = if (animalName.contains("fox", ignoreCase = true)) "FOX" else "TORTOISE"
+
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Color(0xFF9C27B0).copy(alpha = 0.8f),
         shadowElevation = 8.dp,
-        modifier = modifier
+        modifier = modifier.clickable {
+            val intent = Intent(context, ChatActivity::class.java).apply {
+                putExtra("ANIMAL_NAME", animalName)
+                putExtra("ANIMAL_TYPE", animalType)
+            }
+            context.startActivity(intent)
+        }
     ) {
         Box(
             contentAlignment = Alignment.Center,
