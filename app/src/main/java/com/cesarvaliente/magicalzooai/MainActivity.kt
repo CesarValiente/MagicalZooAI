@@ -3,6 +3,19 @@ package com.cesarvaliente.magicalzooai
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,13 +25,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -33,13 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +68,6 @@ private enum class Animal { FOX, TORTOISE }
 @Composable
 fun MagicalZooStartScreen() {
     var selected by rememberSaveable { mutableStateOf<Animal?>(null) }
-
     val skyBlue = Color(0xFF87CEEB)
 
     Box(
@@ -63,97 +75,167 @@ fun MagicalZooStartScreen() {
             .fillMaxSize()
             .background(skyBlue)
     ) {
-        // Title at the top, centered horizontally, with side margins
-        Text(
-            text = "Welcome to MagicalZooAI.\nPlease select your favorite magical animal.\n",
-            fontSize = 38.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = FontFamily.Cursive,
-            textAlign = TextAlign.Center,
-            color = Color.Black,
+        Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 32.dp, start = 24.dp, end = 24.dp)
-        )
-
-        // Row with two equally sized selectable areas
-        Row(
-            modifier = Modifier
-                .align(Alignment.Center)
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Fox column uses half width
-            Column(
-                modifier = Modifier.fillMaxWidth(0.5f),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Title at the top
+            Text(
+                text = "Welcome to MagicalZooAI.\nPlease select your favorite magical animal.\n",
+                fontSize = 38.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Cursive,
+                textAlign = TextAlign.Center,
+                color = Color.Black,
+                modifier = Modifier
+                    .padding(top = 10.dp, start = 24.dp, end = 24.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            // Row with animal selection
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val isSelected = selected == Animal.FOX
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (isSelected) Color(0xFFFFF3E0) else Color.White.copy(alpha = 0.95f),
-                    border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFFFFA726)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(interactionSource = remember { MutableInteractionSource() }) { selected = Animal.FOX }
+                // Fox column (left half)
+                Column(
+                    modifier = Modifier.fillMaxWidth(0.5f),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.fox02_cropped),
-                            contentDescription = "Fox",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(180.dp)
-                        )
+                    val isSelected = selected == Animal.FOX
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) Color(0xFFFFF3E0) else Color.White.copy(alpha = 0.95f),
+                        border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFFFFA726)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(interactionSource = remember { MutableInteractionSource() }) {
+                                selected = Animal.FOX
+                            }
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
+                            Image(
+                                painter = painterResource(id = R.drawable.fox02_cropped),
+                                contentDescription = "Fox",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(220.dp)
+                            )
+                        }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Rudy the fox",
+                        fontSize = 28.sp,
+                        fontFamily = FontFamily.Cursive,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = Color.Black
+                    )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Rudy the fox",
-                    fontSize = 24.sp,
-                    fontFamily = FontFamily.Cursive,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = Color.Black
-                )
+
+                // Tortoise column (right half)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val isSelected = selected == Animal.TORTOISE
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = if (isSelected) Color(0xFFE8F5E9) else Color.White.copy(alpha = 0.95f),
+                        border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFF66BB6A)),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable(interactionSource = remember { MutableInteractionSource() }) {
+                                selected = Animal.TORTOISE
+                            }
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
+                            Image(
+                                painter = painterResource(id = R.drawable.tortoise_cropped),
+                                contentDescription = "Tortoise",
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier.size(220.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Maddie the tortoise",
+                        fontSize = 28.sp,
+                        fontFamily = FontFamily.Cursive,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                        color = Color.Black
+                    )
+                }
             }
 
-            // Tortoise column uses half width
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+            // Animated confirmation button
+            Spacer(modifier = Modifier.height(24.dp))
+            AnimatedVisibility(
+                visible = selected != null,
+                enter = fadeIn() + expandVertically() + scaleIn(
+                    initialScale = 0.7f,
+                    animationSpec = tween(300, easing = EaseOutBack)
+                ),
+                exit = fadeOut() + shrinkVertically() + scaleOut()
             ) {
-                val isSelected = selected == Animal.TORTOISE
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = if (isSelected) Color(0xFFE8F5E9) else Color.White.copy(alpha = 0.95f),
-                    border = BorderStroke(if (isSelected) 4.dp else 2.dp, Color(0xFF66BB6A)),
+                val animalName = when (selected) {
+                    Animal.FOX -> "Rudy the fox"
+                    Animal.TORTOISE -> "Maddie the tortoise"
+                    null -> ""
+                }
+
+                MagicalConfirmationButton(
+                    animalName = animalName,
                     modifier = Modifier
                         .fillMaxWidth()
-                        // center the surface inside the column instead of expanding full width
-//                        .align(Alignment.CenterHorizontally)
-                        .clickable(interactionSource = remember { MutableInteractionSource() }) { selected = Animal.TORTOISE }
-                ) {
-                    Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
-                        Image(
-                            painter = painterResource(id = R.drawable.tortoise_cropped),
-                            contentDescription = "Tortoise",
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(180.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Maddie the tortoise",
-                    fontSize = 28.sp,
-                    fontFamily = FontFamily.Cursive,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = Color.Black
+                        .padding(horizontal = 32.dp)
                 )
             }
         }
     }
 }
+
+@Composable
+fun MagicalConfirmationButton(
+    animalName: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        shape = RoundedCornerShape(24.dp),
+        color = Color(0xFF9C27B0).copy(alpha = 0.8f),
+        shadowElevation = 8.dp,
+        modifier = modifier
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+        ) {
+            AnimatedContent(
+                targetState = animalName,
+                transitionSpec = {
+                    // Text slides up and fades in while old text slides down and fades out
+                    (slideInVertically { height -> height } + fadeIn()) togetherWith
+                            (slideOutVertically { height -> -height } + fadeOut())
+                },
+                label = "AnimalNameAnimation"
+            ) { targetName ->
+                Text(
+                    text = "You are choosing $targetName",
+                    fontSize = 28.sp,
+                    fontFamily = FontFamily.Cursive,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+
 
 @Preview(name = "Phone", showBackground = true)
 @Composable
