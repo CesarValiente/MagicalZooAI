@@ -11,7 +11,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MagicalZooAI">
         <activity
-            android:name=".MainActivity"
+            android:name=".WelcomeActivity"
             android:exported="true"
             android:theme="@style/Theme.MagicalZooAI">
             <intent-filter>
@@ -20,6 +20,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".PetSelectionActivity"
+            android:exported="false" />
+
         <activity android:name=".ChatActivity"
             android:exported="false" />
     </application>
