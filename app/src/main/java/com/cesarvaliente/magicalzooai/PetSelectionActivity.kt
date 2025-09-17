@@ -39,6 +39,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,12 +56,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-
 class PetSelectionActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val kidName = intent.getStringExtra("KID_NAME") ?: "" // read incoming name
         setContent {
-            MagicalZooStartScreen()
+            MagicalZooStartScreen(kidName = kidName)
         }
     }
 }
@@ -68,7 +70,7 @@ class PetSelectionActivity : ComponentActivity() {
 private enum class Animal { FOX, TORTOISE }
 
 @Composable
-fun MagicalZooStartScreen() {
+fun MagicalZooStartScreen(kidName: String) {
     var selected by rememberSaveable { mutableStateOf<Animal?>(null) }
     val skyBlue = Color(0xFF87CEEB)
 
@@ -84,10 +86,20 @@ fun MagicalZooStartScreen() {
         ) {
             // Title at the top
             Text(
-                text = "Welcome to MagicalZooAI.\nPlease select your favorite magical animal.\n",
-                fontSize = 38.sp,
+                text = "Welcome, $kidName.",
+                fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Cursive,
+                fontFamily = Utils.myFontFamily,
+                textAlign = TextAlign.Center,
+                color = Color.Black,
+                modifier = Modifier
+                    .padding(top = 10.dp, start = 24.dp, end = 24.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Text(
+                text = "Please select your favorite magical animal.\n",
+                fontSize = 22.sp,
+                fontFamily = Utils.myFontFamily,
                 textAlign = TextAlign.Center,
                 color = Color.Black,
                 modifier = Modifier
@@ -118,9 +130,12 @@ fun MagicalZooStartScreen() {
                                 selected = Animal.FOX
                             }
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
                             Image(
-                                painter = painterResource(id = R.drawable.fox02_cropped),
+                                painter = painterResource(id = R.drawable.fox),
                                 contentDescription = "Fox",
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.size(220.dp)
@@ -153,9 +168,12 @@ fun MagicalZooStartScreen() {
                                 selected = Animal.TORTOISE
                             }
                     ) {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(16.dp)) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
                             Image(
-                                painter = painterResource(id = R.drawable.tortoise_cropped),
+                                painter = painterResource(id = R.drawable.tortoise),
                                 contentDescription = "Tortoise",
                                 contentScale = ContentScale.Fit,
                                 modifier = Modifier.size(220.dp)
@@ -168,7 +186,8 @@ fun MagicalZooStartScreen() {
                         fontSize = 28.sp,
                         fontFamily = FontFamily.Cursive,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -208,6 +227,9 @@ fun MagicalConfirmationButton(
     val context = LocalContext.current
     val animalType = if (animalName.contains("fox", ignoreCase = true)) "FOX" else "TORTOISE"
 
+    val scope = rememberCoroutineScope()
+
+
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Color(0xFF9C27B0).copy(alpha = 0.8f),
@@ -235,8 +257,8 @@ fun MagicalConfirmationButton(
             ) { targetName ->
                 Text(
                     text = "You are choosing $targetName",
-                    fontSize = 28.sp,
-                    fontFamily = FontFamily.Cursive,
+                    fontSize = 20.sp,
+                    fontFamily = Utils.myFontFamily,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
                     textAlign = TextAlign.Center
@@ -247,11 +269,10 @@ fun MagicalConfirmationButton(
 }
 
 
-
 @Preview(name = "Phone", showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MagicalZooStartScreen()
+    MagicalZooStartScreen("Cesar")
 }
 
 @Preview(
@@ -261,5 +282,5 @@ fun DefaultPreview() {
 )
 @Composable
 fun TabletPreview() {
-    MagicalZooStartScreen()
+    MagicalZooStartScreen("Cesar")
 }

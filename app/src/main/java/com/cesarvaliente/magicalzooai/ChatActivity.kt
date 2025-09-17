@@ -1,3 +1,4 @@
+// Kotlin
 package com.cesarvaliente.magicalzooai
 
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,7 +28,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -47,12 +48,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cesarvaliente.magicalzooai.api.AIClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class ChatActivity : ComponentActivity() {
@@ -61,6 +64,7 @@ class ChatActivity : ComponentActivity() {
 
         val animalType = intent.getStringExtra("ANIMAL_TYPE") ?: ""
         val animalName = intent.getStringExtra("ANIMAL_NAME") ?: ""
+        //TODO Add kid's name
 
         setContent {
             AnimalChatScreen(
@@ -97,7 +101,16 @@ fun AnimalChatScreen(
         messages.add(ChatMessage("Hello! I'm $animalName. How can I help you today?", false))
     }
 
-    val animalImageRes = if (animalType == "FOX") R.drawable.fox02_cropped else R.drawable.tortoise_cropped
+    // Auto-scroll to bottom whenever messages change
+    LaunchedEffect(messages.size) {
+        if (messages.isNotEmpty()) {
+            // small delay helps ensure layout/IME changes have settled
+            delay(50)
+            scrollState.animateScrollToItem(messages.size - 1)
+        }
+    }
+
+    val animalImageRes = if (animalType == "FOX") R.drawable.fox else R.drawable.tortoise
 
     Box(
         modifier = Modifier
@@ -125,12 +138,11 @@ fun AnimalChatScreen(
                             .padding(end = 16.dp)
                             .size(24.dp)
                     )
-
                     Text(
                         text = "Talking with $animalName",
-                        fontSize = 22.sp,
+                        fontSize = 18.sp,
+                        fontFamily = Utils.myFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        fontFamily = FontFamily.Cursive,
                     )
                 }
             }
@@ -141,7 +153,8 @@ fun AnimalChatScreen(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .imePadding(), // ensure list gets padded when IME is visible
                 reverseLayout = false,
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
@@ -158,7 +171,9 @@ fun AnimalChatScreen(
             Surface(
                 color = Color.White,
                 shadowElevation = 8.dp,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding() // ensure input moves above IME
             ) {
                 Row(
                     modifier = Modifier
@@ -169,7 +184,11 @@ fun AnimalChatScreen(
                     TextField(
                         value = inputText,
                         onValueChange = { inputText = it },
-                        placeholder = { Text("Type a message...") },
+                        placeholder = { Text(
+                            text = "Type a message...",
+                            fontFamily = Utils.myFontFamily,
+                            fontSize = 16.sp
+                        )},
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 8.dp),
@@ -198,15 +217,11 @@ fun AnimalChatScreen(
                                             false
                                         )
                                     )
-                                    scrollState.animateScrollToItem(messages.size - 1)
+                                    // scroll will also be handled by the LaunchedEffect(messages.size)
+                                    inputText = ""
                                 }
 
-                                inputText = ""
 
-                                // Scroll to bottom
-                                coroutineScope.launch {
-                                    scrollState.animateScrollToItem(messages.size - 1)
-                                }
                             }
                         },
                         containerColor = if (animalType == "FOX") Color(0xFFFFA726) else Color(
@@ -242,7 +257,7 @@ fun MessageBubble(message: ChatMessage, animalImageRes: Int) {
                 Image(
                     painter = painterResource(id = animalImageRes),
                     contentDescription = "Animal",
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxSize()
                 )
             }

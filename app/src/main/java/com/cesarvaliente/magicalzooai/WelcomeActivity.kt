@@ -1,6 +1,5 @@
 package com.cesarvaliente.magicalzooai
 
-import android.R
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -42,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -50,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cesarvaliente.magicalzooai.vm.WelcomeViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -59,9 +58,14 @@ class WelcomeActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             WelcomeScreen(viewModel = viewModel, onNavigate = {
-                val intent = Intent(this, PetSelectionActivity::class.java)
+                val intent = Intent(this, PetSelectionActivity::class.java).apply {
+                    putExtra("KID_NAME", viewModel.name.value) // pass the name
+                }
                 startActivity(intent)
-                overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                overridePendingTransition(
+                    android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right
+                )
                 finish()
             })
         }
@@ -127,12 +131,19 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                         fontFamily = Utils.myFontFamily,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(top = 8.dp, bottom = 16.dp, start = 24.dp, end = 24.dp)
+                        modifier = Modifier.padding(
+                            top = 8.dp,
+                            bottom = 16.dp,
+                            start = 24.dp,
+                            end = 24.dp
+                        )
                     )
                     // Magic stars
                     Row(
                         horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
                     ) {
                         for (i in 0 until starCount) {
                             val alpha = starAnimatables[i].value
@@ -177,10 +188,13 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                                 viewModel.onNameChange(it)
                             }
                         },
-                        placeholder = { Text(
-                            text = "Enter your name",
-                            fontFamily = Utils.myFontFamily,
-                            color = Color.Gray) },
+                        placeholder = {
+                            Text(
+                                text = "Enter your name",
+                                fontFamily = Utils.myFontFamily,
+                                color = Color.Gray
+                            )
+                        },
                         singleLine = true,
                         isError = !isNameValid,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

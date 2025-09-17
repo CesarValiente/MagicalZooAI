@@ -1,8 +1,9 @@
-package com.cesarvaliente.magicalzooai
+package com.cesarvaliente.magicalzooai.vm
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.cesarvaliente.magicalzooai.storage.NameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,4 +45,3 @@ class WelcomeViewModel(application: Application) : AndroidViewModel(application)
         _saveSuccess.value = false
     }
 }
-

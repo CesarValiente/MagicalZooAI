@@ -1,9 +1,9 @@
-package com.cesarvaliente.magicalzooai
+package com.cesarvaliente.magicalzooai.storage
 
 import android.content.Context
+import androidx.core.content.edit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.core.content.edit
 
 class NameRepository(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -21,4 +21,3 @@ class NameRepository(context: Context) {
         private const val KEY_NAME = "user_name"
     }
 }
-
