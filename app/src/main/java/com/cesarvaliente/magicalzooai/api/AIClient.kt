@@ -1,5 +1,6 @@
 package com.cesarvaliente.magicalzooai.api
 
+import android.util.Log
 import com.cesarvaliente.magicalzooai.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -41,7 +42,7 @@ class AIClient private constructor() {
                 "Keep responses short, about 1-2 sentences."
 
         val request = ChatCompletionRequest(
-            model = "gpt-3.5-turbo",
+            model = "gpt-4.1-nano",  // Changed from "gpt-5-nano" to the correct model name
             messages = listOf(
                 ChatCompletionRequest.Message("system", systemPrompt),
                 ChatCompletionRequest.Message("user", userMessage)
@@ -57,9 +58,13 @@ class AIClient private constructor() {
                 response.body()?.choices?.firstOrNull()?.message?.content
                     ?: "I'm sorry, I couldn't understand that. Could you try again?"
             } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("AIClient", "OpenAI API Error: $errorBody")
+                Log.e("AIClient", "Response code: ${response.code()}")
                 "Oops! I had trouble understanding. Could you try asking me something else?"
             }
         } catch (e: Exception) {
+            Log.e("AIClient", "Exception calling OpenAI API", e)
             "I'm having trouble thinking right now. Could you try again?"
         }
     }
