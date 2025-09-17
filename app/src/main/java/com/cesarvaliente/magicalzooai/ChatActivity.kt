@@ -7,20 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -29,20 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,60 +26,56 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cesarvaliente.magicalzooai.api.AIClient
-import kotlinx.coroutines.Dispatchers
+import com.cesarvaliente.magicalzooai.model.ChatMessage
+import com.cesarvaliente.magicalzooai.repository.ChatRepository
+import com.cesarvaliente.magicalzooai.viewmodel.ChatViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-
 
 class ChatActivity : ComponentActivity() {
+    private lateinit var viewModel: ChatViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val animalType = intent.getStringExtra("ANIMAL_TYPE") ?: ""
         val animalName = intent.getStringExtra("ANIMAL_NAME") ?: ""
-        //TODO Add kid's name
+
+        // Initialize ViewModel
+        val chatRepository = ChatRepository(AIClient.getInstance())
+        viewModel = ViewModelProvider(this, ChatViewModel.Factory(chatRepository))[ChatViewModel::class.java]
 
         setContent {
             AnimalChatScreen(
+                viewModel = viewModel,
                 animalType = animalType,
                 animalName = animalName,
-                onBack = { finish() } // Pass the activity's finish method as a lambda
+                onBack = { finish() }
             )
         }
+
+        // Add initial greeting
+        viewModel.addInitialGreeting(animalName)
     }
 }
 
-// Data class for chat messages
-data class ChatMessage(
-    val content: String,
-    val isFromUser: Boolean,
-    val timestamp: Long = System.currentTimeMillis()
-)
-
 @Composable
 fun AnimalChatScreen(
+    viewModel: ChatViewModel,
     animalType: String,
     animalName: String,
     onBack: () -> Unit
-){
-
+) {
     val skyBlue = Color(0xFF87CEEB)
-    val messages = remember { mutableStateListOf<ChatMessage>() }
-    var inputText by remember { mutableStateOf("") }
+    val messages by viewModel.messages.collectAsStateWithLifecycle()
+    val inputText by viewModel.inputText.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-
-    // Add initial greeting when screen loads
-    LaunchedEffect(Unit) {
-        messages.add(ChatMessage("Hello! I'm $animalName. How can I help you today?", false))
-    }
 
     // Auto-scroll to bottom whenever messages change
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
-            // small delay helps ensure layout/IME changes have settled
             delay(50)
             scrollState.animateScrollToItem(messages.size - 1)
         }
@@ -154,7 +125,7 @@ fun AnimalChatScreen(
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .imePadding(), // ensure list gets padded when IME is visible
+                    .imePadding(),
                 reverseLayout = false,
                 contentPadding = PaddingValues(vertical = 8.dp)
             ) {
@@ -173,7 +144,7 @@ fun AnimalChatScreen(
                 shadowElevation = 8.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .imePadding() // ensure input moves above IME
+                    .imePadding()
             ) {
                 Row(
                     modifier = Modifier
@@ -183,7 +154,7 @@ fun AnimalChatScreen(
                 ) {
                     TextField(
                         value = inputText,
-                        onValueChange = { inputText = it },
+                        onValueChange = { viewModel.onInputTextChanged(it) },
                         placeholder = { Text(
                             text = "Type a message...",
                             fontFamily = Utils.myFontFamily,
@@ -203,30 +174,8 @@ fun AnimalChatScreen(
                     )
 
                     FloatingActionButton(
-                        onClick = {
-                            if (inputText.isNotBlank()) {
-                                // Add user message
-                                messages.add(ChatMessage(inputText, true))
-
-                                // Simulate animal response
-                                coroutineScope.launch {
-                                    delay(1000)
-                                    messages.add(
-                                        ChatMessage(
-                                            "I'm $animalName and I'm responding to: $inputText",
-                                            false
-                                        )
-                                    )
-                                    // scroll will also be handled by the LaunchedEffect(messages.size)
-                                    inputText = ""
-                                }
-
-
-                            }
-                        },
-                        containerColor = if (animalType == "FOX") Color(0xFFFFA726) else Color(
-                            0xFF66BB6A
-                        ),
+                        onClick = { viewModel.sendMessage(animalName, animalType) },
+                        containerColor = if (animalType == "FOX") Color(0xFFFFA726) else Color(0xFF66BB6A),
                         modifier = Modifier.size(48.dp)
                     ) {
                         Icon(

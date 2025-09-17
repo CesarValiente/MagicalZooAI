@@ -1,4 +1,4 @@
-package com.cesarvaliente.magicalzooai.vm
+package com.cesarvaliente.magicalzooai.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
