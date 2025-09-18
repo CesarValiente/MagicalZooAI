@@ -36,6 +36,10 @@ import kotlinx.coroutines.delay
 import android.view.inputmethod.InputMethodManager
 import android.content.Context
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.core.view.WindowCompat
+import kotlin.comparisons.then
+import androidx.compose.foundation.layout.WindowInsets
 
 class ChatActivity : ComponentActivity() {
     private lateinit var viewModel: ChatViewModel
@@ -43,12 +47,18 @@ class ChatActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Configure window to handle insets properly
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         val animalType = intent.getStringExtra("ANIMAL_TYPE") ?: ""
         val animalName = intent.getStringExtra("ANIMAL_NAME") ?: ""
 
         // Initialize ViewModel
         val chatRepository = ChatRepository(AIClient.getInstance())
-        viewModel = ViewModelProvider(this, ChatViewModel.Factory(chatRepository))[ChatViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            ChatViewModel.Factory(chatRepository)
+        )[ChatViewModel::class.java]
 
         setContent {
             AnimalChatScreen(
@@ -64,6 +74,7 @@ class ChatActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AnimalChatScreen(
     viewModel: ChatViewModel,
@@ -75,7 +86,13 @@ fun AnimalChatScreen(
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val inputText by viewModel.inputText.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
-    val context = LocalContext.current // Get the current context
+    val context = LocalContext.current
+
+    // Check if keyboard is visible
+    val isKeyboardVisible = WindowInsets.isImeVisible
+    val bottomPadding = with(LocalDensity.current) {
+        WindowInsets.navigationBars.getBottom(this).toDp()
+    }
 
     // Auto-scroll to bottom whenever messages change
     LaunchedEffect(messages.size) {
@@ -89,21 +106,27 @@ fun AnimalChatScreen(
 
     // Function to hide keyboard
     fun hideKeyboard() {
-        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.hideSoftInputFromWindow((context as? ComponentActivity)?.currentFocus?.windowToken, 0)
+        val inputMethodManager =
+            context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(
+            (context as? ComponentActivity)?.currentFocus?.windowToken,
+            0
+        )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(skyBlue.copy(alpha = 0.3f))
-    ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Top bar
+    // Use Scaffold instead of direct Box/Column composition for better inset handling
+    // Use a Scaffold for proper inset handling
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = skyBlue.copy(alpha = 0.3f),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
             Surface(
                 color = skyBlue,
                 shadowElevation = 4.dp,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -127,35 +150,23 @@ fun AnimalChatScreen(
                     )
                 }
             }
-
-            // Chat messages
-
-            LazyColumn(
-                state = scrollState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .imePadding(),
-                reverseLayout = false,
-                contentPadding = PaddingValues(vertical = 8.dp)
-            ) {
-                items(messages) { message ->
-                    MessageBubble(
-                        message = message,
-                        animalImageRes = animalImageRes
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-
-            // Input field
+        },
+        bottomBar = {
+            // Chat messages (scrollable content)
             Surface(
                 color = Color.White,
                 shadowElevation = 8.dp,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .imePadding()
+                    // Only apply imePadding when keyboard is visible
+                    .then(
+                        if (isKeyboardVisible) {
+                            Modifier.imePadding()
+                        } else {
+                            // Add extra padding to ensure text field is fully visible
+                            Modifier.padding(bottom = bottomPadding + 8.dp)
+                        }
+                    )
             ) {
                 Row(
                     modifier = Modifier
@@ -166,11 +177,13 @@ fun AnimalChatScreen(
                     TextField(
                         value = inputText,
                         onValueChange = { viewModel.onInputTextChanged(it) },
-                        placeholder = { Text(
-                            text = "Type a message...",
-                            fontFamily = Utils.myFontFamily,
-                            fontSize = 16.sp
-                        )},
+                        placeholder = {
+                            Text(
+                                text = "Type a message...",
+                                fontFamily = Utils.myFontFamily,
+                                fontSize = 16.sp
+                            )
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 8.dp),
@@ -189,7 +202,8 @@ fun AnimalChatScreen(
                             viewModel.sendMessage(animalName, animalType)
                             hideKeyboard() // Hide keyboard after sending message
                         },
-                        containerColor = if (animalType == "FOX") Color(0xFFFFA726) else Color(0xFF66BB6A),
+                        containerColor = if (animalType == "FOX") Color(0xFFFFA726)
+                        else Color(0xFF66BB6A),
                         modifier = Modifier.size(48.dp)
                     ) {
                         Icon(
@@ -199,6 +213,25 @@ fun AnimalChatScreen(
                         )
                     }
                 }
+            }
+        }
+    ) { innerPadding ->
+        // Chat messages
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerPadding) // Apply padding from Scaffold
+                .padding(horizontal = 16.dp),
+            reverseLayout = false,
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            items(messages) { message ->
+                MessageBubble(
+                    message = message,
+                    animalImageRes = animalImageRes
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
