@@ -210,6 +210,7 @@ fun MagicalZooStartScreen(kidName: String) {
 
                 MagicalConfirmationButton(
                     animalName = animalName,
+                    kidName = kidName,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp)
@@ -222,6 +223,7 @@ fun MagicalZooStartScreen(kidName: String) {
 @Composable
 fun MagicalConfirmationButton(
     animalName: String,
+    kidName: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -229,18 +231,17 @@ fun MagicalConfirmationButton(
 
     val scope = rememberCoroutineScope()
 
-
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Color(0xFF9C27B0).copy(alpha = 0.8f),
         shadowElevation = 8.dp,
         modifier = modifier.clickable {
-            val intent = Intent(context, ChatActivity::class.java).apply {
-                putExtra("ANIMAL_NAME", animalName)
+            val intent = Intent(context, TopicActivity::class.java).apply {
+                putExtra("KID_NAME", kidName)
                 putExtra("ANIMAL_TYPE", animalType)
+                putExtra("ANIMAL_NAME", animalName)
             }
             context.startActivity(intent)
-
             // Add transition animation
             (context as? ComponentActivity)?.overridePendingTransition(
                 android.R.anim.slide_in_left,

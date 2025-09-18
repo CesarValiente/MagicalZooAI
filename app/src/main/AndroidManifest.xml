@@ -31,5 +31,8 @@
         <activity android:name=".ChatActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="false" />
+
+        <activity android:name=".TopicActivity"
+            android:exported="false" />
     </application>
 </manifest>

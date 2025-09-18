@@ -43,8 +43,8 @@ class ChatViewModel(
         }
     }
 
-    fun addInitialGreeting(animalName: String) {
-        val greeting = "Hello! I'm $animalName. How can I help you today?"
+    fun addInitialGreeting(animalName: String, kidName: String) {
+        val greeting = "Hello! I'm $animalName. How can I help you today, $kidName?"
         _messages.value = listOf(ChatMessage(greeting, false))
     }
 

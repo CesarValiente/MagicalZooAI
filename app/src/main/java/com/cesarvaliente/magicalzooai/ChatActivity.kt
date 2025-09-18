@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,8 +72,10 @@ class ChatActivity : ComponentActivity() {
         // Configure window to handle insets properly
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val animalType = intent.getStringExtra("ANIMAL_TYPE") ?: ""
+        val kidName = intent.getStringExtra("KID_NAME") ?: ""
         val animalName = intent.getStringExtra("ANIMAL_NAME") ?: ""
+        val animalType = intent.getStringExtra("ANIMAL_TYPE") ?: ""
+        val topic  = intent.getStringExtra("TOPIC") ?: ""
 
         // Initialize ViewModel
         val chatRepository = ChatRepository(AIClient.getInstance())
@@ -86,12 +89,14 @@ class ChatActivity : ComponentActivity() {
                 viewModel = viewModel,
                 animalType = animalType,
                 animalName = animalName,
+                kidName = kidName,
+                topic = topic,
                 onBack = { finish() }
             )
         }
 
         // Add initial greeting
-        viewModel.addInitialGreeting(animalName)
+        viewModel.addInitialGreeting(animalName, kidName)
     }
 }
 
@@ -101,6 +106,8 @@ fun AnimalChatScreen(
     viewModel: ChatViewModel,
     animalType: String,
     animalName: String,
+    kidName: String,
+    topic: String,
     onBack: () -> Unit
 ) {
     val skyBlue = Color(0xFF87CEEB)
@@ -206,6 +213,12 @@ fun AnimalChatScreen(
                     TextField(
                         value = inputText,
                         onValueChange = { viewModel.onInputTextChanged(it) },
+                        textStyle = TextStyle(
+                            fontFamily = Utils.myFontFamily,
+                            fontSize = 16.sp,
+                            lineHeight = 24.sp,
+                            letterSpacing = 0.5.sp
+                        ),
                         placeholder = {
                             Text(
                                 text = "Type a message...",
@@ -216,6 +229,7 @@ fun AnimalChatScreen(
                         modifier = Modifier
                             .weight(1f)
                             .padding(end = 8.dp),
+
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = Color.White,
                             unfocusedContainerColor = Color.White,
