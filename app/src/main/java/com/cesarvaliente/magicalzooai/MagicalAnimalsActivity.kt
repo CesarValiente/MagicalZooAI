@@ -240,6 +240,12 @@ fun MagicalConfirmationButton(
                 putExtra("ANIMAL_TYPE", animalType)
             }
             context.startActivity(intent)
+
+            // Add transition animation
+            (context as? ComponentActivity)?.overridePendingTransition(
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right
+            )
         }
     ) {
         Box(
