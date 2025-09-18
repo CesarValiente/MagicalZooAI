@@ -33,6 +33,9 @@ import com.cesarvaliente.magicalzooai.model.ChatMessage
 import com.cesarvaliente.magicalzooai.repository.ChatRepository
 import com.cesarvaliente.magicalzooai.viewmodel.ChatViewModel
 import kotlinx.coroutines.delay
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 
 class ChatActivity : ComponentActivity() {
     private lateinit var viewModel: ChatViewModel
@@ -72,6 +75,7 @@ fun AnimalChatScreen(
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val inputText by viewModel.inputText.collectAsStateWithLifecycle()
     val scrollState = rememberLazyListState()
+    val context = LocalContext.current // Get the current context
 
     // Auto-scroll to bottom whenever messages change
     LaunchedEffect(messages.size) {
@@ -82,6 +86,12 @@ fun AnimalChatScreen(
     }
 
     val animalImageRes = if (animalType == "FOX") R.drawable.fox else R.drawable.tortoise
+
+    // Function to hide keyboard
+    fun hideKeyboard() {
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow((context as? ComponentActivity)?.currentFocus?.windowToken, 0)
+    }
 
     Box(
         modifier = Modifier
@@ -119,6 +129,7 @@ fun AnimalChatScreen(
             }
 
             // Chat messages
+
             LazyColumn(
                 state = scrollState,
                 modifier = Modifier
@@ -174,7 +185,10 @@ fun AnimalChatScreen(
                     )
 
                     FloatingActionButton(
-                        onClick = { viewModel.sendMessage(animalName, animalType) },
+                        onClick = {
+                            viewModel.sendMessage(animalName, animalType)
+                            hideKeyboard() // Hide keyboard after sending message
+                        },
                         containerColor = if (animalType == "FOX") Color(0xFFFFA726) else Color(0xFF66BB6A),
                         modifier = Modifier.size(48.dp)
                     ) {
