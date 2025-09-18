@@ -214,8 +214,7 @@ fun AnimalChatScreen(
                         value = inputText,
                         onValueChange = { viewModel.onInputTextChanged(it) },
                         textStyle = TextStyle(
-                            fontFamily = Utils.myFontFamily,
-                            fontSize = 16.sp,
+                            fontSize = 18.sp,
                             lineHeight = 24.sp,
                             letterSpacing = 0.5.sp
                         ),
@@ -242,7 +241,7 @@ fun AnimalChatScreen(
 
                     FloatingActionButton(
                         onClick = {
-                            viewModel.sendMessage(animalName, animalType)
+                            viewModel.sendMessage(animalName, animalType, topic)
                             hideKeyboard() // Hide keyboard after sending message
                         },
                         containerColor = if (animalType == "FOX") Color(0xFFFFA726)
@@ -313,11 +312,12 @@ fun MessageBubble(message: ChatMessage, animalImageRes: Int) {
                 bottomEnd = 16.dp
             ),
             shadowElevation = 2.dp,
-            modifier = Modifier.widthIn(max = 280.dp)
+            modifier = Modifier.widthIn(max = 320.dp)
         ) {
             Text(
                 text = message.content,
                 color = if (message.isFromUser) Color.White else Color.Black,
+                fontSize = 16.sp,
                 modifier = Modifier.padding(12.dp)
             )
         }

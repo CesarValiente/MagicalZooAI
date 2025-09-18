@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -195,6 +196,9 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                                 color = Color.Gray
                             )
                         },
+                        textStyle = TextStyle(
+                            fontSize = 20.sp,
+                        ),
                         singleLine = true,
                         isError = !isNameValid,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),

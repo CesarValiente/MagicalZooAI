@@ -24,7 +24,7 @@ class ChatViewModel(
         _inputText.value = text
     }
 
-    fun sendMessage(animalName: String, animalType: String) {
+    fun sendMessage(animalName: String, animalType: String, topic: String) {
         val currentInput = _inputText.value
         if (currentInput.isBlank()) return
 
@@ -37,7 +37,7 @@ class ChatViewModel(
             _inputText.value = ""
 
             // Get AI response
-            val response = chatRepository.generateResponse(animalName, animalType, currentInput)
+            val response = chatRepository.generateResponse(animalName, animalType, topic,currentInput)
             val aiMessage = ChatMessage(response, false)
             _messages.value = _messages.value + aiMessage
         }
