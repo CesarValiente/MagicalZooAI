@@ -229,8 +229,6 @@ fun MagicalConfirmationButton(
     val context = LocalContext.current
     val animalType = if (animalName.contains("fox", ignoreCase = true)) "FOX" else "TORTOISE"
 
-    val scope = rememberCoroutineScope()
-
     Surface(
         shape = RoundedCornerShape(24.dp),
         color = Color(0xFF9C27B0).copy(alpha = 0.8f),
@@ -263,7 +261,7 @@ fun MagicalConfirmationButton(
                 label = "AnimalNameAnimation"
             ) { targetName ->
                 Text(
-                    text = "You are choosing $targetName",
+                    text = "I pick $targetName!",
                     fontSize = 20.sp,
                     fontFamily = Utils.myFontFamily,
                     fontWeight = FontWeight.Bold,

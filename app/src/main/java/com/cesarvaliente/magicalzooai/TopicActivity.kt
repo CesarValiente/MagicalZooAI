@@ -54,6 +54,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.ui.text.font.FontFamily
 import kotlin.unaryMinus
 
 class TopicActivity : ComponentActivity() {
@@ -95,10 +96,10 @@ fun TopicScreen(
     val buttonSize = 120.dp
     val buttonShape = RoundedCornerShape(32.dp)
     val topics = listOf(
-        TopicButtonData("maths", R.drawable.maths, Color(0xFF7E9EFF)),
-        TopicButtonData("science", R.drawable.science, Color(0xFF7EFF86)),
-        TopicButtonData("history & geography", R.drawable.history_and_geography, Color(0xFFFF847E)),
-        TopicButtonData("chatting", R.drawable.chatting, Color(0xFFFFE47E))
+        TopicButtonData("maths", R.drawable.maths, Color(0xFF7E9EFF), "Maths"),
+        TopicButtonData("science", R.drawable.science, Color(0xFF7EFF86), "Science"),
+        TopicButtonData("history & geography", R.drawable.history_and_geography, Color(0xFFFF847E), "History & Geography"),
+        TopicButtonData("chatting", R.drawable.chatting, Color(0xFFFFE47E), "Just Chat")
     )
     var selectedTopic by remember { mutableStateOf<TopicButtonData?>(null) }
     var buttonText by remember { mutableStateOf("Accept") }
@@ -168,8 +169,8 @@ fun TopicScreen(
                     shape = buttonShape,
                     onClick = {
                         selectedTopic = topics[0]
-                        buttonText = if (topics[0].id == "chatting") "Just chatting."
-                        else "You want to learn ${topics[0].id}."
+                        buttonText = if (topics[0].id == "chatting") "Just chat."
+                        else "I want to learn ${topics[0].id}."
                     }
                 )
                 Spacer(modifier = Modifier.width(32.dp))
@@ -180,12 +181,12 @@ fun TopicScreen(
                     shape = buttonShape,
                     onClick = {
                         selectedTopic = topics[1]
-                        buttonText = if (topics[1].id == "chatting") "Just chatting."
-                        else "You want to learn ${topics[1].id}."
+                        buttonText = if (topics[1].id == "chatting") "Just chat."
+                        else "I want to learn ${topics[1].id}."
                     }
                 )
             }
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
             // Second row
             Row(
                 horizontalArrangement = Arrangement.Center,
@@ -198,8 +199,8 @@ fun TopicScreen(
                     shape = buttonShape,
                     onClick = {
                         selectedTopic = topics[2]
-                        buttonText = if (topics[2].id == "chatting") "Just chatting."
-                        else "You want to learn ${topics[2].id}."
+                        buttonText = if (topics[2].id == "chatting") "Just chat."
+                        else "I want to learn ${topics[2].id}."
                     }
                 )
                 Spacer(modifier = Modifier.width(32.dp))
@@ -210,8 +211,8 @@ fun TopicScreen(
                     shape = buttonShape,
                     onClick = {
                         selectedTopic = topics[3]
-                        buttonText = if (topics[3].id == "chatting") "Just chatting."
-                        else "You want to learn ${topics[3].id}."
+                        buttonText = if (topics[3].id == "chatting") "Just chat."
+                        else "I want to learn ${topics[3].id}."
                     }
                 )
             }
@@ -274,28 +275,47 @@ fun TopicButton(
     shape: RoundedCornerShape,
     onClick: () -> Unit
 ) {
-    Surface(
-        shape = shape,
-        color = if (selected) data.color.copy(alpha = 0.7f) else Color.White,
-        shadowElevation = if (selected) 12.dp else 6.dp,
-        border = null,
-        modifier = Modifier
-            .size(size)
-            .clickable { onClick() }
-            .graphicsLayer {
-                scaleX = if (selected) 1.08f else 1f
-                scaleY = if (selected) 1.08f else 1f
-            }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Image(
-                painter = painterResource(id = data.iconRes),
-                contentDescription = data.id,
-                modifier = Modifier.size(size * 0.6f)
-            )
+        Surface(
+            shape = shape,
+            color = if (selected) data.color.copy(alpha = 0.7f) else Color.White,
+            shadowElevation = if (selected) 12.dp else 6.dp,
+            border = null,
+            modifier = Modifier
+                .size(size)
+                .clickable { onClick() }
+                .graphicsLayer {
+                    scaleX = if (selected) 1.08f else 1f
+                    scaleY = if (selected) 1.08f else 1f
+                }
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(id = data.iconRes),
+                    contentDescription = data.id,
+                    modifier = Modifier.size(size * 0.6f)
+                )
+            }
         }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = data.displayName,
+            fontSize = 22.sp,
+            fontFamily = FontFamily.Cursive,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            color = Color.Black,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
-data class TopicButtonData(val id: String, val iconRes: Int, val color: Color)
+data class TopicButtonData(
+    val id: String,
+    val iconRes: Int,
+    val color: Color,
+    val displayName : String
+)
 
