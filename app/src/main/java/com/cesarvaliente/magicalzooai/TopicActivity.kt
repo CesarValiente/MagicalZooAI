@@ -5,9 +5,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -47,6 +54,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxWidth
+import kotlin.unaryMinus
 
 class TopicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +130,7 @@ fun TopicScreen(
                             .size(24.dp)
                     )
                     Text(
-                        text = "Select a Topic",
+                        text = "Topic selection",
                         fontSize = 18.sp,
                         fontFamily = Utils.myFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -140,7 +148,7 @@ fun TopicScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "$kidName what do you want to talk with $animalName?",
+                text = "$kidName, what would you like to talk about with $animalName?",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Utils.myFontFamily,
@@ -208,38 +216,48 @@ fun TopicScreen(
                 )
             }
             Spacer(modifier = Modifier.height(48.dp))
-            // Accept/validate button with improved animation
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = Color(0xFF9C27B0).copy(alpha = 0.8f),
-                shadowElevation = 8.dp,
-                modifier = Modifier.clickable(enabled = selectedTopic != null) {
-                    if (selectedTopic != null) {
-                        onTopicChosen(selectedTopic!!.id)
-                    }
-                }
+
+            // Accept button with animated visibility
+            AnimatedVisibility(
+                visible = selectedTopic != null,
+                enter = fadeIn() + expandVertically() + scaleIn(
+                    initialScale = 0.7f,
+                    animationSpec = tween(300, easing = EaseOutBack)
+                ),
+                exit = fadeOut() + shrinkVertically() + scaleOut()
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                Surface(
+                    shape = RoundedCornerShape(24.dp),
+                    color = Color(0xFF9C27B0).copy(alpha = 0.8f),
+                    shadowElevation = 8.dp,
+                    modifier = Modifier.clickable {
+                        if (selectedTopic != null) {
+                            onTopicChosen(selectedTopic!!.id)
+                        }
+                    }
                 ) {
-                    AnimatedContent(
-                        targetState = buttonText,
-                        transitionSpec = {
-                            // Text slides up and fades in while old text slides down and fades out
-                            (slideInVertically { height -> height } + fadeIn()) togetherWith
-                                    (slideOutVertically { height -> -height } + fadeOut())
-                        },
-                        label = "TopicAcceptButtonAnimation"
-                    ) { targetText ->
-                        Text(
-                            text = targetText,
-                            fontSize = 20.sp,
-                            fontFamily = Utils.myFontFamily,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                            textAlign = TextAlign.Center
-                        )
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                    ) {
+                        AnimatedContent(
+                            targetState = buttonText,
+                            transitionSpec = {
+                                // Text slides up and fades in while old text slides down and fades out
+                                (slideInVertically { height -> height } + fadeIn()) togetherWith
+                                        (slideOutVertically { height -> -height } + fadeOut())
+                            },
+                            label = "TopicAcceptButtonAnimation"
+                        ) { targetText ->
+                            Text(
+                                text = targetText,
+                                fontSize = 20.sp,
+                                fontFamily = Utils.myFontFamily,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
