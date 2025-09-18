@@ -62,6 +62,7 @@ import com.cesarvaliente.magicalzooai.model.ChatMessage
 import com.cesarvaliente.magicalzooai.repository.ChatRepository
 import com.cesarvaliente.magicalzooai.viewmodel.ChatViewModel
 import kotlinx.coroutines.delay
+import kotlin.text.replaceFirstChar
 
 class ChatActivity : ComponentActivity() {
     private lateinit var viewModel: ChatViewModel
@@ -178,8 +179,9 @@ fun AnimalChatScreen(
                             .padding(end = 16.dp)
                             .size(24.dp)
                     )
+                    val justAnimalName = extractAnimalFirstName(animalName)
                     Text(
-                        text = "Talking with $animalName",
+                        text = "${topic.capitalizeFirstLetter()} with $justAnimalName",
                         fontSize = 18.sp,
                         fontFamily = Utils.myFontFamily,
                         fontWeight = FontWeight.SemiBold,
@@ -312,7 +314,8 @@ fun MessageBubble(message: ChatMessage, animalImageRes: Int) {
                 bottomEnd = 16.dp
             ),
             shadowElevation = 2.dp,
-            modifier = Modifier.widthIn(max = 320.dp)
+            modifier = Modifier
+                .widthIn(max = 320.dp)
         ) {
             Text(
                 text = message.content,
@@ -321,11 +324,14 @@ fun MessageBubble(message: ChatMessage, animalImageRes: Int) {
                 modifier = Modifier.padding(12.dp)
             )
         }
-
-        if (message.isFromUser) {
-            // Empty space for user avatar (for symmetry)
-            Spacer(modifier = Modifier.width(8.dp))
-            Spacer(modifier = Modifier.size(36.dp))
-        }
     }
+}
+
+fun extractAnimalFirstName(fullName: String): String {
+    if (fullName.isBlank()) return ""
+    return fullName.split(" ").firstOrNull() ?: ""
+}
+
+fun String.capitalizeFirstLetter(): String {
+    return this.replaceFirstChar { it.uppercase() }
 }
