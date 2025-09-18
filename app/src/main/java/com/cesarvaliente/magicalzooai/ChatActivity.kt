@@ -92,7 +92,10 @@ class ChatActivity : ComponentActivity() {
                 animalName = animalName,
                 kidName = kidName,
                 topic = topic,
-                onBack = { finish() }
+                onBack = {
+                    viewModel.clearHistory() // Clear chat history when going back
+                    finish()
+                }
             )
         }
 

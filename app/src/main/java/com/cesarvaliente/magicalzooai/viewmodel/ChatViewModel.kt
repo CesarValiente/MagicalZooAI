@@ -33,11 +33,21 @@ class ChatViewModel(
             val userMessage = ChatMessage(currentInput, true)
             _messages.value = _messages.value + userMessage
 
+            // Build conversation history for the API (excluding system prompt)
+            val history = _messages.value.map {
+                com.cesarvaliente.magicalzooai.api.ChatCompletionRequest.Message(
+                    role = if (it.isFromUser) "user" else "assistant",
+                    content = it.content
+                )
+            }
+
             // Clear input immediately
             _inputText.value = ""
 
-            // Get AI response
-            val response = chatRepository.generateResponse(animalName, animalType, topic,currentInput)
+            // Get AI response with full history
+            val response = chatRepository.generateResponseWithHistory(
+                animalName, animalType, topic, history
+            )
             val aiMessage = ChatMessage(response, false)
             _messages.value = _messages.value + aiMessage
         }
@@ -46,6 +56,10 @@ class ChatViewModel(
     fun addInitialGreeting(animalName: String, kidName: String) {
         val greeting = "Hello! I'm $animalName. How can I help you today, $kidName?"
         _messages.value = listOf(ChatMessage(greeting, false))
+    }
+
+    fun clearHistory() {
+        _messages.value = emptyList()
     }
 
     class Factory(private val chatRepository: ChatRepository) : ViewModelProvider.Factory {
