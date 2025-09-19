@@ -157,7 +157,7 @@ fun TopicScreen(
         ) {
             Text(
                 text = "$kidName, what would you like to talk about with $animalName?",
-                fontSize = 24.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 fontFamily = Utils.myFontFamily,
                 color = Color.Black,
