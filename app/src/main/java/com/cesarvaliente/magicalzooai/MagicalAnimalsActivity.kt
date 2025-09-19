@@ -144,11 +144,12 @@ fun MagicalZooStartScreen(kidName: String) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Rudy the fox",
+                        text = "Rudy the Magical Fox",
                         fontSize = 28.sp,
                         fontFamily = FontFamily.Cursive,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = Color.Black
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
                     )
                 }
 
@@ -182,7 +183,7 @@ fun MagicalZooStartScreen(kidName: String) {
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Maddie the tortoise",
+                        text = "Maddie the Magical Tortoise",
                         fontSize = 28.sp,
                         fontFamily = FontFamily.Cursive,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
@@ -203,8 +204,8 @@ fun MagicalZooStartScreen(kidName: String) {
                 exit = fadeOut() + shrinkVertically() + scaleOut()
             ) {
                 val animalName = when (selected) {
-                    Animal.FOX -> "Rudy the fox"
-                    Animal.TORTOISE -> "Maddie the tortoise"
+                    Animal.FOX -> "Rudy the Magical Fox"
+                    Animal.TORTOISE -> "Maddie the Magical Tortoise"
                     null -> ""
                 }
 
