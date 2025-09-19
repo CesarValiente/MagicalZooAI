@@ -125,6 +125,33 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 24.dp)
                     )
+                    // Magic stars
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        for (i in 0 until starCount) {
+                            val alpha = starAnimatables[i].value
+                            val rotation = 360f * starAnimatables[i].value
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .alpha(alpha)
+                                    .rotate(rotation)
+                                    .padding(horizontal = 2.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "★",
+                                    fontSize = 35.sp,
+                                    color = Color(0xFFFFEB3B),
+                                    modifier = Modifier
+                                )
+                            }
+                        }
+                    }
                     Text(
                         text = "What is your name?",
                         fontSize = 32.sp,
@@ -139,33 +166,6 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                             end = 24.dp
                         )
                     )
-                    // Magic stars
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                    ) {
-                        for (i in 0 until starCount) {
-                            val alpha = starAnimatables[i].value
-                            val rotation = 360f * starAnimatables[i].value
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .alpha(alpha)
-                                    .rotate(rotation)
-                                    .padding(horizontal = 2.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "★",
-                                    fontSize = 22.sp,
-                                    color = Color(0xFFFFEB3B),
-                                    modifier = Modifier
-                                )
-                            }
-                        }
-                    }
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
