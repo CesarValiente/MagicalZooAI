@@ -92,7 +92,7 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
         textVisible = true
 
         // Wait for stars animation to complete before showing name input
-        delay(1200) // Wait for stars to appear (7 stars * 120ms + some extra time)
+        delay(800) // Wait for stars to appear (7 stars * 120ms + some extra time)
         nameInputVisible = true
     }
 
@@ -103,8 +103,8 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
         if (textVisible) {
             starAnimatables.forEachIndexed { i, anim ->
                 coroutineScope.launch {
-                    delay(i * 120L)
-                    anim.animateTo(1f, animationSpec = tween(700))
+                    delay(i * 80L)
+                    anim.animateTo(1f, animationSpec = tween(500))
                 }
             }
         }
