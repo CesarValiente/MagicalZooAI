@@ -268,10 +268,14 @@ fun AnimalChatScreen(
             state = scrollState,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(innerPadding) // Apply padding from Scaffold
-                .padding(horizontal = 16.dp),
+                .padding(innerPadding), // Apply padding from Scaffold
             reverseLayout = false,
-            contentPadding = PaddingValues(vertical = 8.dp)
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = 50.dp // Increased bottom padding to ensure content isn't hidden
+            )
         ) {
             items(messages) { message ->
                 MessageBubble(
