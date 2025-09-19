@@ -15,6 +15,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -23,12 +25,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,21 +50,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.ui.text.font.FontFamily
-import kotlin.unaryMinus
 
 class TopicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,7 +75,10 @@ class TopicActivity : ComponentActivity() {
                         putExtra("TOPIC", topic)
                     }
                     startActivity(chatIntent)
-                    overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+                    overridePendingTransition(
+                        android.R.anim.slide_in_left,
+                        android.R.anim.slide_out_right
+                    )
                 },
                 onBack = { finish() }
             )
@@ -98,7 +100,12 @@ fun TopicScreen(
     val topics = listOf(
         TopicButtonData("maths", R.drawable.maths, Color(0xFF7E9EFF), "Maths"),
         TopicButtonData("science", R.drawable.science, Color(0xFF7EFF86), "Science"),
-        TopicButtonData("history & geography", R.drawable.history_and_geography, Color(0xFFFF847E), "History & Geography"),
+        TopicButtonData(
+            "history & geography",
+            R.drawable.history_and_geography,
+            Color(0xFFFF847E),
+            "History & Geography"
+        ),
         TopicButtonData("chatting", R.drawable.chatting, Color(0xFFFFE47E), "Just Chat")
     )
     var selectedTopic by remember { mutableStateOf<TopicButtonData?>(null) }
@@ -160,7 +167,9 @@ fun TopicScreen(
             // First row
             Row(
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize().weight(1f, false)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f, false)
             ) {
                 TopicButton(
                     data = topics[0],
@@ -190,7 +199,9 @@ fun TopicScreen(
             // Second row
             Row(
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize().weight(1f, false)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f, false)
             ) {
                 TopicButton(
                     data = topics[2],
@@ -227,39 +238,52 @@ fun TopicScreen(
                 ),
                 exit = fadeOut() + shrinkVertically() + scaleOut()
             ) {
-                Surface(
-                    shape = RoundedCornerShape(24.dp),
-                    color = Color(0xFF9C27B0).copy(alpha = 0.8f),
-                    shadowElevation = 8.dp,
-                    modifier = Modifier.clickable {
-                        if (selectedTopic != null) {
-                            onTopicChosen(selectedTopic!!.id)
-                        }
-                    }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                    Surface(
+                        shape = RoundedCornerShape(24.dp),
+                        color = Color(0xFF9C27B0).copy(alpha = 0.8f),
+                        shadowElevation = 8.dp,
+                        modifier = Modifier.clickable {
+                            if (selectedTopic != null) {
+                                onTopicChosen(selectedTopic!!.id)
+                            }
+                        }
                     ) {
-                        AnimatedContent(
-                            targetState = buttonText,
-                            transitionSpec = {
-                                // Text slides up and fades in while old text slides down and fades out
-                                (slideInVertically { height -> height } + fadeIn()) togetherWith
-                                        (slideOutVertically { height -> -height } + fadeOut())
-                            },
-                            label = "TopicAcceptButtonAnimation"
-                        ) { targetText ->
-                            Text(
-                                text = targetText,
-                                fontSize = 20.sp,
-                                fontFamily = Utils.myFontFamily,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                textAlign = TextAlign.Center
-                            )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+                        ) {
+                            AnimatedContent(
+                                targetState = buttonText,
+                                transitionSpec = {
+                                    // Text slides up and fades in while old text slides down and fades out
+                                    (slideInVertically { height -> height } + fadeIn()) togetherWith
+                                            (slideOutVertically { height -> -height } + fadeOut())
+                                },
+                                label = "TopicAcceptButtonAnimation"
+                            ) { targetText ->
+                                Text(
+                                    text = targetText,
+                                    fontSize = 20.sp,
+                                    fontFamily = Utils.myFontFamily,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
                     }
+                    // Hint text below the button
+                    Text(
+                        text = "(tap the above button to continue)",
+                        fontSize = 14.sp,
+                        color = Color.Black.copy(alpha = 0.6f),
+                        fontFamily = Utils.myFontFamily,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
             Spacer(modifier = Modifier.height(32.dp))
@@ -316,6 +340,6 @@ data class TopicButtonData(
     val id: String,
     val iconRes: Int,
     val color: Color,
-    val displayName : String
+    val displayName: String
 )
 

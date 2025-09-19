@@ -230,47 +230,61 @@ fun MagicalConfirmationButton(
     val context = LocalContext.current
     val animalType = if (animalName.contains("fox", ignoreCase = true)) "FOX" else "TORTOISE"
 
-    Surface(
-        shape = RoundedCornerShape(24.dp),
-        color = Color(0xFF9C27B0).copy(alpha = 0.8f),
-        shadowElevation = 8.dp,
-        modifier = modifier.clickable {
-            val intent = Intent(context, TopicActivity::class.java).apply {
-                putExtra("KID_NAME", kidName)
-                putExtra("ANIMAL_TYPE", animalType)
-                putExtra("ANIMAL_NAME", animalName)
-            }
-            context.startActivity(intent)
-            // Add transition animation
-            (context as? ComponentActivity)?.overridePendingTransition(
-                android.R.anim.slide_in_left,
-                android.R.anim.slide_out_right
-            )
-        }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
-        ) {
-            AnimatedContent(
-                targetState = animalName,
-                transitionSpec = {
-                    // Text slides up and fades in while old text slides down and fades out
-                    (slideInVertically { height -> height } + fadeIn()) togetherWith
-                            (slideOutVertically { height -> -height } + fadeOut())
-                },
-                label = "AnimalNameAnimation"
-            ) { targetName ->
-                Text(
-                    text = "I pick $targetName!",
-                    fontSize = 20.sp,
-                    fontFamily = Utils.myFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    textAlign = TextAlign.Center
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF9C27B0).copy(alpha = 0.8f),
+            shadowElevation = 8.dp,
+            modifier = modifier.clickable {
+                val intent = Intent(context, TopicActivity::class.java).apply {
+                    putExtra("KID_NAME", kidName)
+                    putExtra("ANIMAL_TYPE", animalType)
+                    putExtra("ANIMAL_NAME", animalName)
+                }
+                context.startActivity(intent)
+                // Add transition animation
+                (context as? ComponentActivity)?.overridePendingTransition(
+                    android.R.anim.slide_in_left,
+                    android.R.anim.slide_out_right
                 )
             }
+        ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
+            ) {
+                AnimatedContent(
+                    targetState = animalName,
+                    transitionSpec = {
+                        // Text slides up and fades in while old text slides down and fades out
+                        (slideInVertically { height -> height } + fadeIn()) togetherWith
+                                (slideOutVertically { height -> -height } + fadeOut())
+                    },
+                    label = "AnimalNameAnimation"
+                ) { targetName ->
+                    Text(
+                        text = "I pick $targetName!",
+                        fontSize = 20.sp,
+                        fontFamily = Utils.myFontFamily,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
         }
+        // Hint text below the button
+        Text(
+            text = "(tap the above button to continue)",
+            fontSize = 14.sp,
+            color = Color.Black.copy(alpha = 0.6f),
+            fontFamily = Utils.myFontFamily,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
     }
 }
 
