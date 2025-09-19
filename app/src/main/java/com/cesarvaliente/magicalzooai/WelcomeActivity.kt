@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -83,9 +85,15 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
 
     // Animation for text and stars
     var textVisible by remember { mutableStateOf(false) }
+    var nameInputVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         delay(300)
         textVisible = true
+
+        // Wait for stars animation to complete before showing name input
+        delay(1200) // Wait for stars to appear (7 stars * 120ms + some extra time)
+        nameInputVisible = true
     }
 
     // Animated stars
@@ -130,7 +138,7 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 16.dp)
                     ) {
                         for (i in 0 until starCount) {
                             val alpha = starAnimatables[i].value
@@ -152,6 +160,15 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                             }
                         }
                     }
+                }
+            }
+            // Name question and input field with animation
+            AnimatedVisibility(
+                visible = nameInputVisible,
+                enter = fadeIn(animationSpec = tween<Float>(800)) +
+                        slideInVertically(initialOffsetY = { it / 2 }, animationSpec = tween(800))
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "What is your name?",
                         fontSize = 32.sp,
@@ -160,94 +177,94 @@ fun WelcomeScreen(viewModel: WelcomeViewModel, onNavigate: () -> Unit) {
                         color = Color.Black,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(
-                            top = 8.dp,
                             bottom = 16.dp,
                             start = 24.dp,
                             end = 24.dp
                         )
                     )
-                }
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            // Input box
-            Surface(
-                shape = CircleShape,
-                color = Color.White.copy(alpha = 0.95f),
-                shadowElevation = 8.dp,
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .fillMaxWidth()
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    TextField(
-                        value = name,
-                        onValueChange = {
-                            if (it.length <= 20 && it.all { c -> c.isLetter() }) {
-                                viewModel.onNameChange(it)
-                            }
-                        },
-                        placeholder = {
-                            Text(
-                                text = "Enter your name",
-                                fontFamily = Utils.myFontFamily,
-                                color = Color.Gray
-                            )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 20.sp,
-                        ),
-                        singleLine = true,
-                        isError = !isNameValid,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        visualTransformation = VisualTransformation.None,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = Color.White,
-                            unfocusedContainerColor = Color.White,
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent,
-                            errorContainerColor = Color(0xFFFFCDD2)
-                        ),
-                        modifier = Modifier.weight(1f)
-                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                    // Input box
                     Surface(
                         shape = CircleShape,
-                        color = Color(0xFF9C27B0).copy(alpha = 0.8f),
-                        shadowElevation = 4.dp,
+                        color = Color.White.copy(alpha = 0.95f),
+                        shadowElevation = 8.dp,
                         modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(48.dp)
-                            .let { mod ->
-                                if (isNameValid && name.isNotBlank())
-                                    mod
-                                else
-                                    mod.alpha(0.5f)
-                            }
-                            .background(Color.Transparent)
-                            .run {
-                                if (isNameValid && name.isNotBlank())
-                                    clickable { viewModel.saveName() }
-                                else this
-                            }
+                            .padding(horizontal = 32.dp)
+                            .fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Accept",
-                            tint = Color.White,
-                            modifier = Modifier.padding(12.dp)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            TextField(
+                                value = name,
+                                onValueChange = {
+                                    if (it.length <= 20 && it.all { c -> c.isLetter() }) {
+                                        viewModel.onNameChange(it)
+                                    }
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = "Enter your name",
+                                        fontFamily = Utils.myFontFamily,
+                                        color = Color.Gray
+                                    )
+                                },
+                                textStyle = TextStyle(
+                                    fontSize = 20.sp,
+                                ),
+                                singleLine = true,
+                                isError = !isNameValid,
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                visualTransformation = VisualTransformation.None,
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.White,
+                                    unfocusedContainerColor = Color.White,
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    errorContainerColor = Color(0xFFFFCDD2)
+                                ),
+                                modifier = Modifier.weight(1f)
+                            )
+                            Surface(
+                                shape = CircleShape,
+                                color = Color(0xFF9C27B0).copy(alpha = 0.8f),
+                                shadowElevation = 4.dp,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(48.dp)
+                                    .let { mod ->
+                                        if (isNameValid && name.isNotBlank())
+                                            mod
+                                        else
+                                            mod.alpha(0.5f)
+                                    }
+                                    .background(Color.Transparent)
+                                    .run {
+                                        if (isNameValid && name.isNotBlank())
+                                            clickable { viewModel.saveName() }
+                                        else this
+                                    }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Send,
+                                    contentDescription = "Accept",
+                                    tint = Color.White,
+                                    modifier = Modifier.padding(12.dp)
+                                )
+                            }
+                        }
+                    }
+                    if (!isNameValid) {
+                        Text(
+                            text = "Please enter only letters (max 20).",
+                            color = Color.Red,
+                            fontSize = 16.sp,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                 }
-            }
-            if (!isNameValid) {
-                Text(
-                    text = "Please enter only letters (max 20).",
-                    color = Color.Red,
-                    fontSize = 16.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
         }
         // Navigation effect
